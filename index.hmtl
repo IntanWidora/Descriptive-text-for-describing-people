@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Descriptive Text Academy: Describing People</title>
+    <title>Descriptive Text: Describing People</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -74,9 +74,8 @@
 </head>
 <body class="text-slate-800 antialiased bg-slate-50 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
-    <!-- Audio Synthesizer for Interactive Sound Effects -->
+    <!-- AUDIO SYNTHESIZER FOR SOUND EFFECTS -->
     <script>
-        // Simple Web Audio API Synthesizer for UI feedback (No external audio files needed!)
         const AudioFX = {
             ctx: null,
             init() {
@@ -88,9 +87,9 @@
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, now); // C5
-                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
                 gain.gain.setValueAtTime(0.2, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
                 osc.connect(gain);
@@ -104,7 +103,7 @@
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(220, now); // A3
+                osc.frequency.setValueAtTime(220, now);
                 osc.frequency.setValueAtTime(180, now + 0.15);
                 gain.gain.setValueAtTime(0.2, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
@@ -130,8 +129,14 @@
         };
     </script>
 
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-3 text-sm font-bold transition-all duration-300 transform translate-y-20 opacity-0 bg-slate-900 text-white pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-info text-amber-400"></i>
+        <span id="toast-text">Notification message</span>
+    </div>
+
     <!-- HEADER / NAVIGATION BAR -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <!-- Logo & Title -->
@@ -1062,11 +1067,18 @@
                     <div class="space-y-3">
                         <textarea id="reflection-writer" rows="5" placeholder="Example: My best friend is Maya (Identification). She is tall and has short black hair. She is very helpful and friendly to everyone (Description)..." class="w-full p-4 border border-slate-200 rounded-2xl text-xs sm:text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"></textarea>
                         
-                        <div class="flex justify-between items-center">
+                        <div class="flex flex-wrap justify-between items-center gap-2">
                             <span id="word-count" class="text-xs font-bold text-slate-400">0 words</span>
-                            <button onclick="submitWriting()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow transition">
-                                Submit Description <i class="fa-solid fa-paper-plane ml-1"></i>
-                            </button>
+                            <div class="flex space-x-2">
+                                <button onclick="copyReflectionText()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition flex items-center space-x-1">
+                                    <i class="fa-regular fa-copy"></i>
+                                    <span>Copy Text</span>
+                                </button>
+                                <button onclick="submitWriting()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center space-x-1">
+                                    <span>Submit Description</span>
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -1089,29 +1101,43 @@
 
     <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
+        // --- TOAST NOTIFICATION SYSTEM (Replaces alert) ---
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast-notification');
+            const toastText = document.getElementById('toast-text');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastText.innerText = msg;
+            if (isError) {
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-rose-400";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
         // --- 1. TAB SWITCHING LOGIC ---
         function switchTab(tabId) {
             AudioFX.playClick();
-            // Hide all tab contents
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            // Remove active classes on nav
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('text-indigo-600', 'bg-white', 'shadow-sm');
                 btn.classList.add('text-slate-600');
             });
 
-            // Show selected section
             const activeSection = document.getElementById(`section-${tabId}`);
             if (activeSection) activeSection.classList.remove('hidden');
 
-            // Highlight nav button
             const activeNav = document.getElementById(`nav-${tabId}`);
             if (activeNav) {
                 activeNav.classList.add('text-indigo-600', 'bg-white', 'shadow-sm');
                 activeNav.classList.remove('text-slate-600');
             }
 
-            // Scroll to top smooth
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1181,7 +1207,7 @@
             } else {
                 AudioFX.playError();
                 feedback.className = "feedback-msg text-xs font-bold text-rose-600 mt-2";
-                feedback.innerHTML = "✗ Incorrect. Try remembering if it uses a main action verb or to be (is/am/are).";
+                feedback.innerHTML = "✗ Incorrect. Remember if it uses a main action verb or to be (is/am/are).";
             }
         }
 
@@ -1291,10 +1317,11 @@
                 gameScore += 100;
                 document.getElementById('game-score').innerText = gameScore;
                 currentLevel++;
+                showToast("✓ Correct suspect identified!");
                 loadGameLevel();
             } else {
                 AudioFX.playError();
-                alert("❌ Wrong suspect! Read the descriptive clue carefully again!");
+                showToast("❌ Wrong suspect! Read the descriptive clue again.", true);
             }
         }
 
@@ -1425,10 +1452,8 @@
                 choicesContainer.appendChild(btn);
             });
 
-            // Prev button state
             document.getElementById('quiz-prev-btn').disabled = currentQIndex === 0;
 
-            // Next button text
             const nextBtn = document.getElementById('quiz-next-btn');
             if (currentQIndex === quizData.length - 1) {
                 nextBtn.innerHTML = `Submit Quiz <i class="fa-solid fa-check ml-1"></i>`;
@@ -1448,7 +1473,7 @@
         function nextQuestion() {
             AudioFX.playClick();
             if (userAnswers[currentQIndex] === null) {
-                alert("Please select an answer before moving forward!");
+                showToast("Please select an answer first!", true);
                 return;
             }
 
@@ -1502,22 +1527,34 @@
             loadQuestion();
         }
 
-        // --- 6. REFLECTION WRITING COUNTER ---
+        // --- 6. REFLECTION WRITING COUNTER & COPY ---
         document.getElementById('reflection-writer').addEventListener('input', function(e) {
             const text = e.target.value.trim();
             const words = text ? text.split(/\s+/).length : 0;
             document.getElementById('word-count').innerText = `${words} words`;
         });
 
+        function copyReflectionText() {
+            const textArea = document.getElementById('reflection-writer');
+            if (!textArea.value.trim()) {
+                showToast("Nothing to copy! Write something first.", true);
+                return;
+            }
+            textArea.select();
+            document.execCommand('copy');
+            showToast("Copied writing to clipboard! 📋");
+        }
+
         function submitWriting() {
             const text = document.getElementById('reflection-writer').value.trim();
             if (text.length < 15) {
-                alert("Please write at least 2-3 sentences to complete your description!");
+                showToast("Please write at least 2-3 sentences for your description!", true);
                 return;
             }
             AudioFX.playSuccess();
             confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
             document.getElementById('writing-feedback').classList.remove('hidden');
+            showToast("Description submitted successfully! 🎉");
         }
 
         // --- INITIALIZATION ---
